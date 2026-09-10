@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Growx intraday tranding</title>
     
+    <!-- Meta Pixel Base Code -->
     <script>
     !function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -104,7 +105,7 @@
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
-            transition: transform 0.2s;
+            transition: transform 0.2s, opacity 0.2s;
             margin-bottom: 8px;
         }
         .cta-btn:active {
@@ -217,12 +218,10 @@
 
     <div class="container">
         <div class="profile-img-box">
-            <img src="profile.png" alt="ROCHIT SINGH STOCKS
-">
+            <img src="profile.png" alt="ROCHIT SINGH STOCKS">
         </div>
 
-        <h1>ROCHIT SINGH STOCKS
-</h1>
+        <h1>ROCHIT SINGH STOCKS</h1>
         
         <div class="subtitle-badge">
             📈 Stock Market Expert <span class="checkmark">✓</span> SEBI Registered
@@ -262,7 +261,8 @@
             </p>
         </div>
 
-        <button class="cta-btn" onclick="redirectToTelegram()">
+        <!-- ID Added for JavaScript targeting -->
+        <button id="telegramLink" class="cta-btn" onclick="trackButtonClick()">
             🚀 Join Now & Start Earning
         </button>
         <div class="sub-cta-text">🔒 100% Free • Limited Spots</div>
@@ -277,17 +277,42 @@
     </div>
 
     <script>
-        var hasTracked = false;
-        var telegramLink = "https://t.me/+wtOs9AxfHxY0MDhh";
+        var pageLoadTime = Date.now();
+        var telegramUrl = "https://t.me/+wtOs9AxfHxY0MDhh";
 
-        function redirectToTelegram() {
-            if (!hasTracked && typeof fbq !== 'undefined') {
-                fbq('track', 'Subscribe');
-                hasTracked = true;
+        function trackButtonClick() {
+            // 1. Session check: Agar is browser window me click ho chuka h to event fire nahi hoga
+            if (sessionStorage.getItem('already_clicked')) {
+                window.location.href = telegramUrl;
+                return;
             }
 
+            // 2. Anti-Bot check: Page khulne ke 1 second ke andar click karne wale bots ko block karega
+            var currentTime = Date.now();
+            if (currentTime - pageLoadTime < 1000) {
+                sessionStorage.setItem('already_clicked', 'true');
+                window.location.href = telegramUrl;
+                return;
+            }
+
+            // 3. Real User Click: Event count hoga aur session lock ho jayega
+            sessionStorage.setItem('already_clicked', 'true');
+
+            if (typeof fbq !== 'undefined') {
+                fbq('trackCustom', 'TelegramBtnClick');
+                fbq('track', 'Subscribe');
+            }
+
+            // Button visually disable hoga
+            var btn = document.getElementById('telegramLink');
+            if (btn) {
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.7';
+            }
+
+            // Redirect delay
             setTimeout(function() {
-                window.location.href = telegramLink;
+                window.location.href = telegramUrl;
             }, 300);
         }
     </script>
